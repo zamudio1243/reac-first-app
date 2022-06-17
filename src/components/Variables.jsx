@@ -1,15 +1,14 @@
-import React from 'react'
+import React, {useState} from 'react'
 
 const Variables = () => {
- let contador = 1
+ const [countClicks, setCountClick] = useState(0)
  const contarClicks = ()=> {
-    contador+=1
-    console.log(contador);
+    setCountClick(countClicks + 1)
+    console.log(countClicks);
  }
-  const sePuedeEscribir = true
   return (
     <div>
-       Contador: {contador}
+       Contador: {countClicks}
        <button onClick={ ()=> {contarClicks()}}>Click!</button>
     </div>
   )
