@@ -1,7 +1,7 @@
 import React from "react";
 import { nanoid } from "nanoid";
 
-function App() {
+const Ejemplo = () => {
   const [tarea, setTarea] = React.useState("");
   const [tareas, setTareas] = React.useState([]);
   const [modoEdicion, setModoEdicion] = React.useState(false);
@@ -82,6 +82,6 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
-export default App;
+export default Ejemplo;
