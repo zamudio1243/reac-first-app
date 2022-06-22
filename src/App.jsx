@@ -6,26 +6,48 @@ const Ejemplo = () => {
   const [movie, setMovie] = React.useState({});
   const [moviesList, setMoviesList] = React.useState([]);
   const [isEditMode, setIsEditMode] = React.useState(false);
+  const [idToEdit, setidToEdit] = React.useState("");
 
   const saveMovie = (e) => {
     e.preventDefault();
-    if (movie.name.trim() === "" || movie.image.trim() === "") {
+    if (movie.name.trim() === "") {
       alert("Todos los campos son obligatorios");
       return;
     }
 
     setMoviesList([...moviesList, { ...movie, id: nanoid() }]);
+    setMovie({ name: "", stars: 0, image: "" });
   };
 
   const deleteMovie = (id) => {
-    const moviesFiltered = moviesList.filter((item) => item.id !== id);
+    const moviesFiltered = moviesList.filter((movie) => movie.id !== id);
     setMoviesList(moviesFiltered);
   };
 
-  const editMovie = (item) => {
+  const editMovie = (movie) => {
     setIsEditMode(true);
-    setMovie(item);
+    setMovie(movie);
+    setidToEdit(movie.id);
   };
+
+  const updateMovie = (e) => {
+    e.preventDefault();
+    if (movie.name.trim() === "") {
+      alert("Todos los campos son obligatorios");
+      return;
+    }
+    const moviesEdited = moviesList.map((value) => {
+      if (value.id === idToEdit) {
+        return movie;
+      }
+      return value;
+    });
+    setMoviesList(moviesEdited);
+    setIsEditMode(false);
+  };
+
+  const placeholder =
+    "https://transportscotlprodblob.blob.core.windows.net/cache/a/e/4/0/e/d/ae40ed439863cdc8ea6833ba0dfad2136e0d6178.png";
 
   return (
     <div className="container mt-5">
@@ -38,7 +60,7 @@ const Ejemplo = () => {
               <li className="list-group-item" key={movie.id}>
                 <div className="card" style={{ width: "32rem" }}>
                   <img
-                    src={movie.image}
+                    src={movie.image ? movie.image : placeholder}
                     className="card-img-top"
                     alt="imagen"
                   />
@@ -71,7 +93,15 @@ const Ejemplo = () => {
         </div>
         <div className="col-4">
           <h4 className="text-center">Añadir Peliculas</h4>
-          <form onSubmit={(e) => saveMovie(e)}>
+          <form
+            onSubmit={(e) => {
+              if (isEditMode) {
+                return updateMovie(e);
+              } else {
+                return saveMovie(e);
+              }
+            }}
+          >
             <input
               type="text"
               className="form-control mb-2"
