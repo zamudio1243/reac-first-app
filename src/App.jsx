@@ -1,22 +1,54 @@
-import React from "react";
-import { nanoid } from "nanoid";
+import React, { useEffect } from "react";
+import { db } from "./firebase.js";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import Star from "./components/Star";
 
-const Ejemplo = () => {
-  const [movie, setMovie] = React.useState({});
+const App = () => {
+  const [movie, setMovie] = React.useState({ name: "" });
   const [moviesList, setMoviesList] = React.useState([]);
   const [isEditMode, setIsEditMode] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState(false);
   const [idToEdit, setidToEdit] = React.useState("");
 
-  const saveMovie = (e) => {
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const data = await getDocs(collection(db, "movies"));
+        const movies = data.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setMoviesList(movies);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (moviesList.length === 0) {
+      fetchMovies();
+    }
+  }, []);
+
+  const saveMovie = async (e) => {
     e.preventDefault();
     if (movie.name.trim() === "") {
       alert("Todos los campos son obligatorios");
       return;
     }
-
-    setMoviesList([...moviesList, { ...movie, id: nanoid() }]);
-    setMovie({ name: "", stars: 0, image: "" });
+    setErrorMessage("");
+    try {
+      const dataRef = await addDoc(collection(db, "tareas"), movie);
+      setMoviesList([...moviesList, { id: dataRef.id, ...movie }]);
+      setMovie({ name: "", stars: 0, image: "" });
+    } catch (error) {
+      setErrorMessage(error);
+    }
   };
 
   const deleteMovie = (id) => {
@@ -56,39 +88,40 @@ const Ejemplo = () => {
         <div className="col-8">
           <h4 className="text-center">Lista de Peliculas</h4>
           <ul className="list-group">
-            {moviesList.map((movie) => (
-              <li className="list-group-item" key={movie.id}>
-                <div className="card" style={{ width: "32rem" }}>
-                  <img
-                    src={movie.image ? movie.image : placeholder}
-                    className="card-img-top"
-                    alt="imagen"
-                  />
-                  <div className="card-body">
-                    <h5 className="card-title">{movie.name}</h5>
-                    <div class="container">
-                      <div class="col-6">
-                        {[...Array(parseInt(movie.stars))].map(() => (
-                          <Star />
-                        ))}
+            {moviesList.length !== 0 &&
+              moviesList.map((movie) => (
+                <li className="list-group-item" key={movie.id}>
+                  <div className="card" style={{ width: "32rem" }}>
+                    <img
+                      src={movie.image ? movie.image : placeholder}
+                      className="card-img-top"
+                      alt="imagen"
+                    />
+                    <div className="card-body">
+                      <h5 className="card-title">{movie.name}</h5>
+                      <div class="container">
+                        <div class="col-6">
+                          {[...Array(parseInt(movie.stars))].map(() => (
+                            <Star />
+                          ))}
+                        </div>
+                        <button
+                          className="btn btn-sm btn-danger float-end mx-2"
+                          onClick={() => deleteMovie(movie.id)}
+                        >
+                          Eliminar
+                        </button>
+                        <button
+                          className="btn btn-sm btn-warning float-end"
+                          onClick={() => editMovie(movie)}
+                        >
+                          Editar
+                        </button>
                       </div>
-                      <button
-                        className="btn btn-sm btn-danger float-end mx-2"
-                        onClick={() => deleteMovie(movie.id)}
-                      >
-                        Eliminar
-                      </button>
-                      <button
-                        className="btn btn-sm btn-warning float-end"
-                        onClick={() => editMovie(movie)}
-                      >
-                        Editar
-                      </button>
                     </div>
                   </div>
-                </div>
-              </li>
-            ))}
+                </li>
+              ))}
           </ul>
         </div>
         <div className="col-4">
@@ -149,4 +182,4 @@ const Ejemplo = () => {
   );
 };
 
-export default Ejemplo;
+export default App;
