@@ -14,7 +14,7 @@ const App = () => {
   const [movie, setMovie] = React.useState({ name: "" });
   const [moviesList, setMoviesList] = React.useState([]);
   const [isEditMode, setIsEditMode] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState("");
   const [idToEdit, setidToEdit] = React.useState("");
 
   useEffect(() => {
@@ -33,7 +33,7 @@ const App = () => {
     if (moviesList.length === 0) {
       fetchMovies();
     }
-  }, []);
+  });
 
   const saveMovie = async (e) => {
     e.preventDefault();
@@ -43,7 +43,7 @@ const App = () => {
     }
     setErrorMessage("");
     try {
-      const dataRef = await addDoc(collection(db, "tareas"), movie);
+      const dataRef = await addDoc(collection(db, "movies"), movie);
       setMoviesList([...moviesList, { id: dataRef.id, ...movie }]);
       setMovie({ name: "", stars: 0, image: "" });
     } catch (error) {
@@ -51,7 +51,8 @@ const App = () => {
     }
   };
 
-  const deleteMovie = (id) => {
+  const deleteMovie = async (id) => {
+    await deleteDoc(doc(db, "movies", id));
     const moviesFiltered = moviesList.filter((movie) => movie.id !== id);
     setMoviesList(moviesFiltered);
   };
@@ -62,20 +63,30 @@ const App = () => {
     setidToEdit(movie.id);
   };
 
-  const updateMovie = (e) => {
+  const updateMovie = async (e) => {
     e.preventDefault();
     if (movie.name.trim() === "") {
       alert("Todos los campos son obligatorios");
       return;
     }
-    const moviesEdited = moviesList.map((value) => {
-      if (value.id === idToEdit) {
-        return movie;
-      }
-      return value;
-    });
-    setMoviesList(moviesEdited);
-    setIsEditMode(false);
+    try {
+      const moviesEdited = moviesList.map((value) => {
+        if (value.id === idToEdit) {
+          return movie;
+        }
+        return value;
+      });
+      setMoviesList(moviesEdited);
+      await updateDoc(doc(db, "movies", idToEdit), {
+        name: movie.name,
+        stars: movie.stars,
+        image: movie.image,
+      });
+      setidToEdit("");
+      setIsEditMode(false);
+    } catch (error) {
+      setErrorMessage(error);
+    }
   };
 
   const placeholder =
@@ -166,6 +177,9 @@ const App = () => {
                 setMovie({ ...movie, image: e.target.value });
               }}
             />
+            {errorMessage !== "" && (
+              <div className="alert alert-danger mt-3">{errorMessage}</div>
+            )}
 
             <button
               className={
