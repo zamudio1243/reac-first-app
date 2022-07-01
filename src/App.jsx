@@ -85,6 +85,7 @@ const App = () => {
       });
       setidToEdit("");
       setIsEditMode(false);
+      setMovie({ name: "", stars: 0, image: "" });
     } catch (error) {
       setErrorMessage(error);
     }
