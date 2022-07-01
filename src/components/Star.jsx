@@ -1,7 +1,11 @@
 import React from "react";
 
-const Star = () => {
-  return <span class="material-symbols-outlined">star</span>;
+const Star = (props) => {
+  return (
+    <span className="material-symbols-outlined" id={props.id}>
+      star
+    </span>
+  );
 };
 
 export default Star;

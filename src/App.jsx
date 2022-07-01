@@ -8,6 +8,7 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
+//import { nanoid } from "nanoid";
 import Star from "./components/Star";
 
 const App = () => {
@@ -110,10 +111,10 @@ const App = () => {
                     />
                     <div className="card-body">
                       <h5 className="card-title">{movie.name}</h5>
-                      <div class="container">
-                        <div class="col-6">
-                          {[...Array(parseInt(movie.stars))].map(() => (
-                            <Star />
+                      <div className="container">
+                        <div className="col-6">
+                          {[...Array(parseInt(movie.stars))].map((v, i) => (
+                            <Star id={i} />
                           ))}
                         </div>
                         <button
