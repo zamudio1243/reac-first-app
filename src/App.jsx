@@ -12,7 +12,7 @@ import {
 import Star from "./components/Star";
 
 const App = () => {
-  const [movie, setMovie] = React.useState({ name: "" });
+  const [movie, setMovie] = React.useState({ name: "", stars: 0, image: "" });
   const [moviesList, setMoviesList] = React.useState([]);
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
